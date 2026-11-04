@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>IT & AI Academy — Bepul Darsliklar</title>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ios-app" id="app">
+
+    <!-- Top Sticky Header -->
+    <header class="ios-header" id="iosHeader">
+      
+      <!-- State 1: Main Search Capsule -->
+      <div class="header-main-capsule" id="headerMainCapsule">
+        <div class="search-capsule">
+          <span class="search-icon">🔍</span>
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="search-input" 
+            placeholder="Kurslar va mavzularni qidirish..." 
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button type="button" class="search-clear-btn" id="searchClearBtn" style="display: none;">✕</button>
+        </div>
+      </div>
+
+      <!-- State 2: Back Button + Detail Capsule -->
+      <div class="header-detail-capsule" id="headerDetailCapsule" style="display: none;">
+        <button type="button" class="ios-back-btn" id="backBtn" title="Orqaga">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <div class="detail-title-pill">
+          <span class="detail-icon" id="detailCapsuleIcon">🤖</span>
+          <span class="detail-title-text" id="detailCapsuleTitle">Sun'iy Intellekt</span>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- Scrollable Main Container -->
+    <div class="scroll-container" id="scrollContainer">
+
+      <!-- ================= 1. HOME VIEW ================= -->
+      <section class="view-home" id="homeView">
+        
+        <!-- User Top Welcome Bar -->
+        <div class="user-bar">
+          <div class="user-info">
+            <div class="user-avatar" id="userAvatar">👨‍💻</div>
+            <div class="user-text">
+              <span class="user-greeting">Xush kelibsiz!</span>
+              <span class="user-name" id="userName">Kelajak Dasturchisi</span>
+            </div>
+          </div>
+          <div class="badge-free">
+            <span class="free-pulse"></span>
+            <span>100% BEPUL</span>
+          </div>
+        </div>
+
+        <!-- Hero Card -->
+        <div class="hero-banner">
+          <div class="hero-content">
+            <span class="hero-tag">🎓 IT &amp; AI AKADEMIYASI</span>
+            <h2 class="hero-title">Sun'iy Intellekt va IT sohasini noldan o'rganing</h2>
+            <p class="hero-desc">Barcha darsliklar, video amaliyotlar va testlar mutlaqo bepul!</p>
+            <div class="hero-stats">
+              <div class="stat-item">
+                <span class="stat-num" id="statCoursesCount">3+</span>
+                <span class="stat-label">Yo'nalishlar</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-num" id="statLessonsCount">50+</span>
+                <span class="stat-label">Darsliklar</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-num">Tekin</span>
+                <span class="stat-label">To'lovsiz</span>
+              </div>
+            </div>
+          </div>
+          <div class="hero-glow-shape"></div>
+        </div>
+
+        <!-- Categories / Filters (Horizontal Scroll) -->
+        <div class="categories-section">
+          <div class="categories-scroll" id="categoriesScroll">
+            <button class="cat-pill active" data-cat="all">⚡ Hammasi</button>
+            <button class="cat-pill" data-cat="ai">🤖 Sun'iy Intellekt</button>
+            <button class="cat-pill" data-cat="security">🛡️ Kiberxavfsizlik</button>
+            <button class="cat-pill" data-cat="design">🎨 AI Dizayn</button>
+          </div>
+        </div>
+
+        <!-- Section Title -->
+        <div class="section-header">
+          <h3 class="section-title">Ommabop Darsliklar</h3>
+          <span class="section-count" id="courseCount">3 ta yo'nalish</span>
+        </div>
+
+        <!-- Courses Grid (3D iOS Cards) -->
+        <div class="courses-grid" id="coursesGrid">
+          <!-- Dynamically populated by app.js -->
+        </div>
+
+      </section>
+
+      <!-- ================= 2. COURSE DETAIL VIEW ================= -->
+      <section class="view-detail" id="detailView" style="display: none;">
+        
+        <!-- Course Detail Hero -->
+        <div class="course-hero-card" id="detailHeroCard">
+          <div class="detail-badge-row">
+            <span class="detail-badge-pill" id="detailCategoryBadge">Sun'iy Intellekt</span>
+            <span class="detail-badge-free">BEPUL</span>
+          </div>
+          <h1 class="detail-main-title" id="detailTitle">ChatGPT va Neyrotarmoqlar</h1>
+          <p class="detail-main-desc" id="detailDesc">Sun'iy intellekt vositalaridan unumli foydalanish, prompt yozish sirlari va amaliy keyslar.</p>
+          
+          <div class="detail-meta-grid">
+            <div class="meta-box">
+              <span class="meta-icon">📚</span>
+              <span class="meta-text" id="detailLessonCount">12 ta dars</span>
+            </div>
+            <div class="meta-box">
+              <span class="meta-icon">⏱️</span>
+              <span class="meta-text" id="detailDuration">4.5 soat</span>
+            </div>
+            <div class="meta-box">
+              <span class="meta-icon">⭐</span>
+              <span class="meta-text" id="detailRating">4.9 (Reyting)</span>
+            </div>
+            <div class="meta-box">
+              <span class="meta-icon">🎯</span>
+              <span class="meta-text" id="detailLevel">Boshlang'ich</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lessons List Section -->
+        <div class="lessons-container">
+          <div class="lessons-header">
+            <h3 class="lessons-title">Darsliklar Mundarijasi</h3>
+            <span class="lessons-status" id="lessonsStatusBadge">Video + Viktorina mavjud</span>
+          </div>
+
+          <div class="lessons-list" id="lessonsList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= 3. PROFILE VIEW ================= -->
+      <section class="view-profile" id="profileView" style="display: none;">
+        <div class="profile-header-card">
+          <div class="profile-avatar-large" id="profileLargeAvatar">👨‍💻</div>
+          <h2 class="profile-user-name" id="profileLargeName">Foydalanuvchi</h2>
+          <span class="profile-user-badge" id="profileBadgeRole">Talaba</span>
+          <p class="profile-tg-id" id="profileTelegramId">Telegram ID: aniqlanmadi</p>
+        </div>
+
+        <!-- Progress & XP Card -->
+        <div class="profile-card">
+          <div class="profile-card-title">
+            <span>🏆 Mening Ko'rsatkichlarim</span>
+            <span class="xp-badge" id="userTotalXp">0 XP</span>
+          </div>
+          <div class="profile-stats-grid">
+            <div class="stat-box">
+              <span class="stat-val" id="userDoneLessonsCount">0</span>
+              <span class="stat-lbl">Ko'rilgan darslar</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-val" id="userPassedQuizCount">0</span>
+              <span class="stat-lbl">Topshirilgan testlar</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-val" id="userBookmarksCount">0</span>
+              <span class="stat-lbl">Saqlangan darslar</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Access Button (Faqat Administrator uchun) -->
+        <div class="admin-access-wrapper" id="adminAccessWrapper" style="display: none;">
+          <button type="button" class="admin-panel-trigger-btn" id="openAdminBtn">
+            <div class="btn-icon">⚡</div>
+            <div class="btn-text-block">
+              <strong>Admin Boshqaruv Paneli</strong>
+              <small>Dars qo'shish, tahrirlash va testlar bazasi</small>
+            </div>
+            <span class="btn-arrow">→</span>
+          </button>
+        </div>
+
+        <!-- About Academy Card -->
+        <div class="profile-card info-card">
+          <h4>🎓 Academy Platformasi haqida</h4>
+          <p>Ushbu platforma yoshlarga Sun'iy intellekt va Axborot texnologiyalarini bepul va sifatli o'rgatish maqsadida yaratilgan.</p>
+          <div class="info-footer">
+            <span>Versiya 2.0 Pro</span>
+            <span>Telegram WebApp</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. FAVORITES VIEW ================= -->
+      <section class="view-favorites" id="favoritesView" style="display: none;">
+        <div class="section-header" style="margin-top: 10px;">
+          <h3 class="section-title">⭐ Saqlangan Darsliklar</h3>
+          <span class="section-count" id="favoritesCount">0 ta</span>
+        </div>
+        <div class="favorites-list" id="favoritesList">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- ================= 5. ADMIN VIEW ================= -->
+      <section class="view-admin" id="adminView" style="display: none;">
+        <div class="admin-header-card">
+          <div class="admin-header-top">
+            <span class="admin-chip">⚡ CONTROL CENTER</span>
+            <button type="button" class="admin-close-btn" id="adminBackBtn">‹ Chiqish</button>
+          </div>
+          <h2>Admin Boshqaruv Paneli</h2>
+          <p>Yangi darsliklar, video havolalar va testlarni boshqaring.</p>
+        </div>
+
+        <!-- Admin Action Buttons -->
+        <div class="admin-quick-actions">
+          <button type="button" class="admin-action-btn primary" id="btnAddNewLesson">
+            <span>➕</span> Yangi Dars Qo'shish
+          </button>
+          <button type="button" class="admin-action-btn" id="btnExportData">
+            <span>💾</span> JSON Eksport
+          </button>
+          <button type="button" class="admin-action-btn" id="btnImportData">
+            <span>📥</span> JSON Import
+          </button>
+          <button type="button" class="admin-action-btn danger" id="btnResetData">
+            <span>🔄</span> Tiklash
+          </button>
+          <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+        </div>
+
+        <!-- Admin Course Select Filter -->
+        <div class="admin-filter-bar">
+          <label for="adminCourseSelect">Kursni tanlang:</label>
+          <select id="adminCourseSelect" class="ios-select"></select>
+        </div>
+
+        <!-- Admin Lessons Management List -->
+        <div class="admin-lessons-container">
+          <div class="admin-lessons-header">
+            <h4>Darslar Ro'yxati</h4>
+            <span id="adminLessonCountBadge">0 ta dars</span>
+          </div>
+          <div class="admin-lessons-list" id="adminLessonsList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Padding for Floating Tab Bar -->
+      <div class="bottom-spacer"></div>
+
+    </div>
+
+    <!-- Floating Bottom iOS Dock (Tab Bar) -->
+    <nav class="ios-dock">
+      <button class="dock-item active" data-tab="home" id="tabHome">
+        <span class="dock-icon">🏠</span>
+        <span class="dock-label">Bosh sahifa</span>
+      </button>
+      <button class="dock-item" data-tab="courses" id="tabCourses">
+        <span class="dock-icon">📚</span>
+        <span class="dock-label">Darslar</span>
+      </button>
+      <button class="dock-item" data-tab="favorites" id="tabFavorites">
+        <span class="dock-icon">⭐</span>
+        <span class="dock-label">Saqlangan</span>
+      </button>
+      <button class="dock-item" data-tab="profile" id="tabProfile">
+        <span class="dock-icon">👤</span>
+        <span class="dock-label">Profil</span>
+      </button>
+    </nav>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- 1. Lesson Video / Preview Modal -->
+    <div class="lesson-modal" id="lessonModal" style="display: none;">
+      <div class="lesson-modal-card">
+        <div class="modal-top-bar">
+          <span class="modal-lesson-tag" id="modalLessonTag">1-dars</span>
+          <div class="modal-top-actions">
+            <button type="button" class="modal-fav-btn" id="modalBookmarkBtn" title="Saqlash">⭐</button>
+            <button type="button" class="modal-close-btn" id="modalCloseBtn">✕</button>
+          </div>
+        </div>
+        <h3 class="modal-lesson-title" id="modalLessonTitle">Dars Nomi</h3>
+        
+        <!-- Video Player Container (Dynamic YouTube Embed or Fallback) -->
+        <div class="video-container-responsive" id="videoContainer">
+          <div class="video-placeholder" id="videoPlaceholder">
+            <div class="video-play-icon">▶</div>
+            <span class="video-text">Video darslik pleeri</span>
+            <span class="video-subtext">Yuklanmoqda...</span>
+          </div>
+        </div>
+
+        <div class="modal-lesson-meta-bar">
+          <span id="modalLessonDuration">⏱️ 15 daqiqa</span>
+          <span id="modalQuizAvailableBadge" class="quiz-badge-pill">📝 Test mavjud</span>
+        </div>
+
+        <div class="modal-lesson-text-wrap">
+          <p class="modal-lesson-text" id="modalLessonText">
+            Dars tavsifi...
+          </p>
+        </div>
+
+        <div class="modal-actions-grid">
+          <button type="button" class="btn-quiz-start" id="btnStartQuiz">
+            <span>📝</span> Bilimni Sinash (Test)
+          </button>
+          <button type="button" class="modal-next-btn" id="modalCompleteBtn">
+            Tushunarli ✓
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Quiz / Viktorina Modal -->
+    <div class="quiz-modal" id="quizModal" style="display: none;">
+      <div class="quiz-modal-card">
+        
+        <!-- Quiz Ongoing View -->
+        <div id="quizPlayingView">
+          <div class="quiz-top-bar">
+            <div class="quiz-progress-text">
+              <span id="quizCurrentStep">1</span> / <span id="quizTotalSteps">3</span> - Savol
+            </div>
+            <button type="button" class="modal-close-btn" id="quizCloseBtn">✕</button>
+          </div>
+
+          <div class="quiz-progress-line">
+            <div class="quiz-progress-fill" id="quizProgressFill" style="width: 33%;"></div>
+          </div>
+
+          <h3 class="quiz-question-title" id="quizQuestionText">Savol yuklanmoqda...</h3>
+
+          <div class="quiz-options-list" id="quizOptionsList">
+            <!-- Dynamically populated buttons -->
+          </div>
+
+          <div class="quiz-feedback-banner" id="quizFeedbackBanner" style="display: none;">
+            <span id="quizFeedbackIcon">💡</span>
+            <span id="quizFeedbackMsg">To'g'ri javob!</span>
+          </div>
+
+          <div class="quiz-action-bar">
+            <button type="button" class="quiz-next-btn" id="quizNextBtn" style="display: none;">Keyingi savol →</button>
+          </div>
+        </div>
+
+        <!-- Quiz Result Celebration View -->
+        <div id="quizResultView" style="display: none;">
+          <div class="quiz-result-card">
+            <div class="quiz-trophy-icon" id="quizResultIcon">🏆</div>
+            <h2 class="quiz-result-title" id="quizResultTitle">Ajoyib natija!</h2>
+            <p class="quiz-result-desc" id="quizResultDesc">Siz barcha savollarga to'g'ri javob berdingiz.</p>
+            
+            <div class="quiz-score-badge">
+              <span class="quiz-score-num" id="quizFinalScore">3 / 3</span>
+              <span class="quiz-score-xp" id="quizEarnedXp">+30 XP</span>
+            </div>
+
+            <button type="button" class="quiz-finish-btn" id="quizFinishBtn">Darsga qaytish ✓</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. Admin Add / Edit Lesson Modal -->
+    <div class="admin-modal" id="adminLessonModal" style="display: none;">
+      <div class="admin-modal-card">
+        <div class="modal-top-bar">
+          <span class="modal-lesson-tag" id="adminModalModeTag">Yangi Dars</span>
+          <button type="button" class="modal-close-btn" id="adminModalCloseBtn">✕</button>
+        </div>
+        <h3 class="admin-modal-title" id="adminModalTitle">Darslik Qo'shish</h3>
+        
+        <form id="adminLessonForm" class="admin-form">
+          <input type="hidden" id="formLessonId">
+
+          <div class="form-group">
+            <label for="formCourseSelect">Yo'nalish (Kurs):</label>
+            <select id="formCourseSelect" class="ios-input" required></select>
+          </div>
+
+          <div class="form-group">
+            <label for="formLessonTitle">Dars Sarlavhasi:</label>
+            <input type="text" id="formLessonTitle" class="ios-input" placeholder="Masalan: Python sikllari bilan ishlash" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="formLessonTag">Tartib (Teg):</label>
+              <input type="text" id="formLessonTag" class="ios-input" placeholder="1-dars" required>
+            </div>
+            <div class="form-group">
+              <label for="formLessonDuration">Davomiyligi:</label>
+              <input type="text" id="formLessonDuration" class="ios-input" placeholder="15 daqiqa" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formLessonVideo">YouTube Video Havolasi:</label>
+            <input type="text" id="formLessonVideo" class="ios-input" placeholder="https://www.youtube.com/watch?v=... yoki ID">
+            <small class="form-hint">YouTube linki berilsa, dars ichida to'liq video pleer ochiladi.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="formLessonDesc">Dars Konspekti / Tavsifi:</label>
+            <textarea id="formLessonDesc" class="ios-textarea" rows="3" placeholder="Ushbu darsda o'rganiladigan asosiy tushunchalar..."></textarea>
+          </div>
+
+          <!-- Quiz Editor Accordion -->
+          <div class="quiz-editor-section">
+            <div class="quiz-editor-header">
+              <strong>📝 Dars uchun Test Savoli (Quiz)</strong>
+            </div>
+
+            <div class="form-group">
+              <label for="formQuizQ">Savol Matni:</label>
+              <input type="text" id="formQuizQ" class="ios-input" placeholder="Masalan: Python-da ro'yxat qaysi qavslar bilan yoziladi?">
+            </div>
+
+            <div class="form-group">
+              <label>Variantlar (A, B, C, D):</label>
+              <input type="text" id="formQuizOpt0" class="ios-input mb-2" placeholder="Variant A (Masalan: [])">
+              <input type="text" id="formQuizOpt1" class="ios-input mb-2" placeholder="Variant B (Masalan: {})">
+              <input type="text" id="formQuizOpt2" class="ios-input mb-2" placeholder="Variant C (Masalan: ())">
+              <input type="text" id="formQuizOpt3" class="ios-input mb-2" placeholder="Variant D (Masalan: <> )">
+            </div>
+
+            <div class="form-group">
+              <label for="formQuizCorrect">To'g'ri variant qaysi?</label>
+              <select id="formQuizCorrect" class="ios-input">
+                <option value="0">Variant A</option>
+                <option value="1">Variant B</option>
+                <option value="2">Variant C</option>
+                <option value="3">Variant D</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-form-actions">
+            <button type="submit" class="admin-submit-btn" id="formSubmitBtn">Saqlash ✓</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="ios-toast" id="iosToast" style="display: none;"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
