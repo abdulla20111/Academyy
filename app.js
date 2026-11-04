@@ -613,7 +613,25 @@ function openLessonModal(lesson, course) {
   if (lesson.content) {
     modalLessonText.innerHTML = lesson.content;
   } else {
-    modalLessonText.textContent = lesson.desc || `Ushbu "${lesson.title}" darsligi orqali yangi amaliy bilimlarni o'rganing. Barcha materiallar bepul!`;
+    let descHtml = lesson.desc || `Ushbu "${lesson.title}" darsligi orqali yangi amaliy bilimlarni o'rganing. Barcha materiallar bepul!`;
+
+    // Media gallery
+    if (lesson.media && lesson.media.length > 0) {
+      descHtml += '<div class="lesson-media-gallery">';
+      lesson.media.forEach(m => {
+        if (m.type === 'photo') {
+          descHtml += `<img src="${m.url}" alt="Dars rasmi" class="lesson-media-item-img" loading="lazy">`;
+        } else if (m.type === 'video') {
+          descHtml += `<video controls playsinline preload="metadata" class="lesson-media-item-video"><source src="${m.url}">Brauzeringiz videoni qo'llab-quvvatlamaydi.</video>`;
+        } else {
+          const fileName = m.url.split('/').pop().split('?')[0] || 'Fayl';
+          descHtml += `<a href="${m.url}" target="_blank" rel="noopener" class="lesson-media-file-link"><div class="lesson-media-file-icon">📄</div><div><div style="font-weight:600;">${fileName}</div><div style="font-size:11px;color:#98989f;">Yuklab olish uchun bosing</div></div></a>`;
+        }
+      });
+      descHtml += '</div>';
+    }
+
+    modalLessonText.innerHTML = descHtml;
   }
 
   // Video Player embed — faqat videoUrl bo'lsa ko'rsatiladi
@@ -948,7 +966,7 @@ function renderAdminLessonsList() {
     item.innerHTML = `
       <div class="admin-item-info">
         <div class="admin-item-title">${l.tag}: ${l.title}</div>
-        <div class="admin-item-meta">⏱️ ${l.duration} ${l.videoUrl ? (extractYouTubeId(l.videoUrl) ? '• 🎥 YouTube' : '• 📹 Video fayl') : '• ⚠️ Video yo\'q'} ${l.quiz ? '• 📝 Test' : ''}</div>
+        <div class="admin-item-meta">⏱️ ${l.duration} ${l.videoUrl ? (extractYouTubeId(l.videoUrl) ? '• 🎥 YouTube' : '• 📹 Video fayl') : '• ⚠️ Video yo\'q'} ${l.media && l.media.length > 0 ? '• 📎 ' + l.media.length + ' media' : ''} ${l.quiz ? '• 📝 Test' : ''}</div>
       </div>
       <div class="admin-item-actions">
         <button type="button" class="btn-action-edit" data-id="${l.id}">✎</button>
@@ -971,6 +989,7 @@ btnAddNewLesson.addEventListener('click', () => {
   adminModalModeTag.textContent = 'Yangi Dars';
   adminModalTitle.textContent = 'Darslik Qo\'shish';
   formLessonTag.value = `${(adminLessonsList.children.length || 0) + 1}-dars`;
+  clearMediaAttachments();
   adminLessonModal.style.display = 'flex';
 });
 
@@ -998,12 +1017,68 @@ function openEditLessonModal(courseId, lesson) {
     formQuizCorrect.value = String(lesson.quiz.correct ?? 0);
   }
 
+  // Load media attachments
+  clearMediaAttachments();
+  if (lesson.media && lesson.media.length > 0) {
+    lesson.media.forEach(m => addMediaAttachmentRow(m.type, m.url));
+  }
+
   adminLessonModal.style.display = 'flex';
 }
 
 adminModalCloseBtn.addEventListener('click', () => {
   haptic('light');
   adminLessonModal.style.display = 'none';
+});
+
+// ==========================================
+// MEDIA ATTACHMENTS SYSTEM
+// ==========================================
+const mediaAttachmentsList = document.getElementById('mediaAttachmentsList');
+const btnAddMedia = document.getElementById('btnAddMedia');
+
+function clearMediaAttachments() {
+  mediaAttachmentsList.innerHTML = '';
+}
+
+function addMediaAttachmentRow(type = 'photo', url = '') {
+  const row = document.createElement('div');
+  row.className = 'media-attach-row';
+  row.innerHTML = `
+    <select class="ios-input media-type-select">
+      <option value="photo" ${type === 'photo' ? 'selected' : ''}>📷 Rasm</option>
+      <option value="video" ${type === 'video' ? 'selected' : ''}>🎬 Video</option>
+      <option value="file" ${type === 'file' ? 'selected' : ''}>📄 Fayl</option>
+    </select>
+    <input type="text" class="ios-input media-url-input" placeholder="URL manzilini kiriting..." value="${url}">
+    <button type="button" class="btn-remove-media">✕</button>
+  `;
+
+  row.querySelector('.btn-remove-media').addEventListener('click', () => {
+    haptic('light');
+    row.style.animation = 'fadeOut 0.2s ease forwards';
+    setTimeout(() => row.remove(), 200);
+  });
+
+  mediaAttachmentsList.appendChild(row);
+  haptic('light');
+}
+
+function getMediaAttachments() {
+  const rows = mediaAttachmentsList.querySelectorAll('.media-attach-row');
+  const media = [];
+  rows.forEach(row => {
+    const type = row.querySelector('.media-type-select').value;
+    const url = row.querySelector('.media-url-input').value.trim();
+    if (url) {
+      media.push({ type, url });
+    }
+  });
+  return media;
+}
+
+btnAddMedia.addEventListener('click', () => {
+  addMediaAttachmentRow();
 });
 
 // Save (Add or Edit) Lesson Submit Handler
@@ -1046,7 +1121,8 @@ adminLessonForm.addEventListener('submit', (e) => {
     duration: formLessonDuration.value.trim(),
     videoUrl: formLessonVideo.value.trim(),
     desc: formLessonDesc.value.trim(),
-    quiz: quizData
+    quiz: quizData,
+    media: getMediaAttachments()
   };
 
   const existingIdx = course.lessons.findIndex(l => l.id === lessonId);
