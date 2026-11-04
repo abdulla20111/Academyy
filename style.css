@@ -17,6 +17,12 @@
   --radius-pill: 9999px;
   --radius-card: 18px;
   --radius-sm: 12px;
+
+  /* 60Hz / 120Hz ProMotion Apple Physics Easing Curves */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-ios: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-press: cubic-bezier(0.2, 0, 0, 1);
 }
 
 * {
@@ -35,6 +41,9 @@ html, body {
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .ios-app {
@@ -182,6 +191,10 @@ html, body {
   overflow-x: hidden;
   padding: 8px 16px 20px 16px;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-behavior: smooth;
+  transform: translateZ(0);
+  will-change: scroll-position;
 }
 
 .scroll-container::-webkit-scrollbar {
@@ -363,15 +376,24 @@ html, body {
   border-radius: var(--radius-pill);
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 0.22s var(--ease-spring), background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cat-pill:hover {
   background: var(--bg-capsule-active);
   color: #fff;
+  transform: translate3d(0, -1px, 0);
+}
+
+.cat-pill:active {
+  transform: scale3d(0.92, 0.92, 1);
+  transition-duration: 0.1s;
 }
 
 .cat-pill.active {
@@ -426,18 +448,34 @@ html, body {
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(0, 0, 0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.28s var(--ease-ios), 
+              box-shadow 0.28s var(--ease-ios), 
+              border-color 0.25s ease, 
+              background 0.25s ease;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  animation: cardSpringIn 0.45s var(--ease-out-expo) backwards;
 }
+
+.course-card:nth-child(1) { animation-delay: 0.04s; }
+.course-card:nth-child(2) { animation-delay: 0.09s; }
+.course-card:nth-child(3) { animation-delay: 0.14s; }
+.course-card:nth-child(4) { animation-delay: 0.19s; }
 
 .course-card:hover {
   background: var(--bg-card-hover);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translate3d(0, -3px, 0);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), 0 0 16px rgba(0, 122, 255, 0.15);
 }
 
 .course-card:active {
-  transform: scale(0.97);
+  transform: scale3d(0.955, 0.955, 1) translate3d(0, 0, 0);
+  transition-duration: 0.1s;
+  transition-timing-function: var(--ease-press);
 }
 
 /* Card Badge */
@@ -656,16 +694,29 @@ html, body {
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, background;
+  backface-visibility: hidden;
+  transition: transform 0.22s var(--ease-ios), background 0.2s ease, border-color 0.2s ease;
+  animation: rowSlideIn 0.35s var(--ease-out-expo) backwards;
 }
+
+.lesson-row:nth-child(1) { animation-delay: 0.03s; }
+.lesson-row:nth-child(2) { animation-delay: 0.06s; }
+.lesson-row:nth-child(3) { animation-delay: 0.09s; }
+.lesson-row:nth-child(4) { animation-delay: 0.12s; }
+.lesson-row:nth-child(5) { animation-delay: 0.15s; }
+.lesson-row:nth-child(6) { animation-delay: 0.18s; }
 
 .lesson-row:hover {
   background: var(--bg-card-hover);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translate3d(3px, 0, 0);
 }
 
 .lesson-row:active {
-  transform: scale(0.98);
+  transform: scale3d(0.975, 0.975, 1) translate3d(0, 0, 0);
+  transition-duration: 0.1s;
 }
 
 .lesson-play-circle {
@@ -735,6 +786,9 @@ html, body {
   padding: 0 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   z-index: 90;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .dock-item {
@@ -749,12 +803,21 @@ html, body {
   cursor: pointer;
   padding: 6px 12px;
   border-radius: var(--radius-pill);
-  transition: all 0.2s ease;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 0.24s var(--ease-spring), color 0.2s ease, background 0.2s ease;
+}
+
+.dock-item:active {
+  transform: scale3d(0.88, 0.88, 1);
+  transition-duration: 0.08s;
 }
 
 .dock-icon {
   font-size: 18px;
   line-height: 1;
+  transition: transform 0.24s var(--ease-spring);
 }
 
 .dock-label {
@@ -768,7 +831,8 @@ html, body {
 }
 
 .dock-item.active .dock-icon {
-  filter: drop-shadow(0 0 6px rgba(0, 122, 255, 0.6));
+  filter: drop-shadow(0 0 8px rgba(0, 122, 255, 0.7));
+  animation: dockIconBounce 0.42s var(--ease-spring);
 }
 
 /* ================= 5. LESSON PREVIEW MODAL ================= */
@@ -776,14 +840,15 @@ html, body {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.88);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   z-index: 200;
-  animation: fadeIn 0.25s ease;
+  animation: modalBackdropFade 0.22s var(--ease-out-expo) forwards;
+  will-change: opacity;
 }
 
 .lesson-modal-card {
@@ -794,6 +859,10 @@ html, body {
   max-width: 400px;
   width: 100%;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  animation: modalSheetSpring 0.38s var(--ease-spring) forwards;
 }
 
 .modal-top-bar {
@@ -923,6 +992,28 @@ html, body {
   display: block;
 }
 
+/* Direct video player (mp4, webm) */
+.direct-video-player {
+  width: 100%;
+  max-height: 280px;
+  border-radius: 14px;
+  background: #000;
+  display: block;
+  outline: none;
+  object-fit: contain;
+}
+
+.direct-video-player::-webkit-media-controls-panel {
+  background: rgba(28, 28, 30, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.direct-video-player::-webkit-media-controls-play-button,
+.direct-video-player::-webkit-media-controls-timeline {
+  filter: brightness(1.2);
+}
+
 .modal-top-actions {
   display: flex;
   align-items: center;
@@ -989,11 +1080,15 @@ html, body {
   justify-content: center;
   gap: 6px;
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
-  transition: transform 0.15s ease;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transition: transform 0.22s var(--ease-spring), box-shadow 0.2s ease;
 }
 
 .btn-quiz-start:active {
-  transform: scale(0.97);
+  transform: scale3d(0.955, 0.955, 1);
+  transition-duration: 0.1s;
 }
 
 /* ================= PROFILE VIEW STYLES ================= */
@@ -1120,12 +1215,16 @@ html, body {
   color: #fff;
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s ease;
   box-shadow: 0 4px 16px rgba(138, 43, 226, 0.2);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 0.24s var(--ease-spring), box-shadow 0.2s ease;
 }
 
 .admin-panel-trigger-btn:active {
-  transform: scale(0.98);
+  transform: scale3d(0.965, 0.965, 1);
+  transition-duration: 0.1s;
 }
 
 .admin-panel-trigger-btn .btn-icon {
@@ -1399,14 +1498,16 @@ html, body {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
   box-sizing: border-box;
+  animation: modalBackdropFade 0.22s var(--ease-out-expo) forwards;
+  will-change: opacity;
 }
 
 .admin-modal-card, .quiz-modal-card {
@@ -1420,6 +1521,10 @@ html, body {
   padding: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
   box-sizing: border-box;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  animation: modalSheetSpring 0.38s var(--ease-spring) forwards;
 }
 
 .admin-modal-title {
@@ -1546,26 +1651,32 @@ html, body {
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: all 0.15s ease;
   line-height: 1.35;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 0.22s var(--ease-spring), background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .quiz-opt-btn:active {
-  transform: scale(0.98);
+  transform: scale3d(0.965, 0.965, 1);
+  transition-duration: 0.08s;
 }
 
 .quiz-opt-btn.correct {
   background: rgba(48, 209, 88, 0.25) !important;
   border-color: var(--accent-green) !important;
   color: #fff !important;
-  box-shadow: 0 0 12px rgba(48, 209, 88, 0.4);
+  box-shadow: 0 0 14px rgba(48, 209, 88, 0.45);
+  animation: correctPulse 0.38s var(--ease-spring);
 }
 
 .quiz-opt-btn.wrong {
   background: rgba(255, 69, 58, 0.25) !important;
   border-color: #ff453a !important;
   color: #fff !important;
-  box-shadow: 0 0 12px rgba(255, 69, 58, 0.4);
+  box-shadow: 0 0 14px rgba(255, 69, 58, 0.45);
+  animation: wrongShake 0.38s ease-in-out;
 }
 
 .quiz-opt-btn.disabled {
@@ -1670,4 +1781,413 @@ html, body {
 @keyframes bounce {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
+}
+
+
+/* =========================================================
+   60Hz / 120Hz PROMOTION & APPLE SPRING KEYFRAMES
+   ========================================================= */
+
+@keyframes cardSpringIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale3d(0.95, 0.95, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+}
+
+@keyframes rowSlideIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes modalBackdropFade {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}
+
+@keyframes modalSheetSpring {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 44px, 0) scale3d(0.93, 0.93, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+  }
+}
+
+@keyframes dockIconBounce {
+  0% { transform: scale3d(0.72, 0.72, 1); }
+  50% { transform: scale3d(1.24, 1.24, 1); }
+  100% { transform: scale3d(1, 1, 1); }
+}
+
+@keyframes correctPulse {
+  0% { transform: scale3d(0.96, 0.96, 1); }
+  50% { transform: scale3d(1.03, 1.03, 1); }
+  100% { transform: scale3d(1, 1, 1); }
+}
+
+@keyframes wrongShake {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  20%, 60% { transform: translate3d(-5px, 0, 0); }
+  40%, 80% { transform: translate3d(5px, 0, 0); }
+}
+
+/* Reduced motion preference support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* =========================================================
+   APPLE LIQUID GLASS (SUYUQ SHISHA) & GENUINE APPLE EMOJIS
+   ========================================================= */
+
+/* Liquid Glass Buttons Engine */
+.liquid-glass-btn,
+.cat-pill,
+.btn-quiz-start,
+.modal-next-btn,
+.admin-panel-trigger-btn,
+.admin-action-btn,
+.admin-submit-btn,
+.quiz-opt-btn,
+.quiz-next-btn,
+.quiz-finish-btn,
+.ios-back-btn,
+.modal-fav-btn,
+.modal-close-btn,
+.admin-close-btn {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(24px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.02) 100%) !important;
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35),
+    0 8px 24px -2px rgba(0, 0, 0, 0.45) !important;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  transition: transform 0.24s var(--ease-spring), 
+              box-shadow 0.24s var(--ease-spring), 
+              border-color 0.2s ease, 
+              background 0.2s ease !important;
+}
+
+/* Liquid Fluid Sheen Layer */
+.cat-pill::before,
+.btn-quiz-start::before,
+.modal-next-btn::before,
+.admin-panel-trigger-btn::before,
+.admin-action-btn::before,
+.admin-submit-btn::before,
+.quiz-opt-btn::before,
+.quiz-next-btn::before,
+.quiz-finish-btn::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -60%;
+  width: 220%;
+  height: 220%;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.08) 28%, transparent 60%);
+  transform: rotate(22deg);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: transform 0.55s ease, opacity 0.35s ease;
+}
+
+/* Liquid Sheen Hover Flow */
+.cat-pill:hover::before,
+.btn-quiz-start:hover::before,
+.modal-next-btn:hover::before,
+.admin-panel-trigger-btn:hover::before,
+.admin-action-btn:hover::before,
+.admin-submit-btn:hover::before,
+.quiz-opt-btn:hover::before,
+.quiz-next-btn:hover::before,
+.quiz-finish-btn:hover::before {
+  transform: translate3d(18%, 18%, 0) rotate(22deg);
+  opacity: 1;
+}
+
+/* Liquid Active Squish & Glow */
+.cat-pill:active,
+.btn-quiz-start:active,
+.modal-next-btn:active,
+.admin-panel-trigger-btn:active,
+.admin-action-btn:active,
+.admin-submit-btn:active,
+.quiz-next-btn:active,
+.quiz-finish-btn:active {
+  transform: scale3d(0.95, 0.95, 1) translate3d(0, 0, 0) !important;
+  box-shadow: 
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 3px 0 rgba(0, 0, 0, 0.6),
+    0 4px 14px -2px rgba(0, 0, 0, 0.65) !important;
+  transition-duration: 0.09s !important;
+}
+
+/* Liquid Primary Accent (Blue / Violet variants) */
+.btn-quiz-start {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.45) 0%, rgba(109, 40, 217, 0.3) 100%) !important;
+  border-top-color: rgba(196, 181, 253, 0.6) !important;
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.4),
+    0 8px 24px -2px rgba(139, 92, 246, 0.4) !important;
+}
+
+.modal-next-btn,
+.admin-action-btn.primary,
+.admin-submit-btn,
+.quiz-next-btn,
+.quiz-finish-btn {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.45) 0%, rgba(0, 242, 254, 0.25) 100%) !important;
+  border-top-color: rgba(125, 211, 252, 0.7) !important;
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.4),
+    0 8px 24px -2px rgba(0, 122, 255, 0.45) !important;
+}
+
+.cat-pill.active {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.5) 0%, rgba(0, 242, 254, 0.3) 100%) !important;
+  border-color: rgba(0, 122, 255, 0.5) !important;
+  border-top-color: rgba(147, 197, 253, 0.8) !important;
+  box-shadow: 
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.7),
+    0 6px 18px rgba(0, 122, 255, 0.45) !important;
+}
+
+/* Authentic Apple 3D Emoji Engine */
+.apple-emoji {
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.22em;
+  display: inline-block;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4));
+  image-rendering: -webkit-optimize-contrast;
+  transition: transform 0.24s var(--ease-spring);
+}
+
+.card-icon-banner .apple-emoji {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+}
+
+.dock-icon .apple-emoji {
+  width: 22px;
+  height: 22px;
+}
+
+.profile-avatar-large .apple-emoji {
+  width: 44px;
+  height: 44px;
+}
+
+.quiz-trophy-icon .apple-emoji {
+  width: 58px;
+  height: 58px;
+  filter: drop-shadow(0 8px 20px rgba(255, 214, 10, 0.5));
+}
+
+.meta-icon .apple-emoji {
+  width: 18px;
+  height: 18px;
+}
+
+.detail-icon .apple-emoji {
+  width: 20px;
+  height: 20px;
+}
+
+.search-icon .apple-emoji {
+  width: 18px;
+  height: 18px;
+}
+
+.user-avatar .apple-emoji {
+  width: 24px;
+  height: 24px;
+}
+
+/* Dynamic Apple emoji sizes (app.js rendered) */
+.emoji-card-icon {
+  width: 42px;
+  height: 42px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.emoji-lesson-icon {
+  width: 18px;
+  height: 18px;
+  vertical-align: -0.15em;
+}
+
+.emoji-quiz-feedback {
+  width: 36px;
+  height: 36px;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.emoji-fav-empty {
+  width: 40px;
+  height: 40px;
+}
+
+/* Footer inline emojis */
+.footer-free .apple-emoji,
+.footer-lessons .apple-emoji {
+  width: 14px;
+  height: 14px;
+  vertical-align: -0.15em;
+}
+
+/* Lesson row meta inline emojis */
+.lesson-row-meta .apple-emoji {
+  width: 14px;
+  height: 14px;
+  vertical-align: -0.15em;
+}
+
+/* Detail rating emoji */
+.detail-meta .apple-emoji {
+  width: 16px;
+  height: 16px;
+  vertical-align: -0.15em;
+}
+
+/* ======================================
+   LESSON ARTICLE — Rich text + images
+   ====================================== */
+.lesson-article {
+  line-height: 1.7;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.lesson-article h4 {
+  color: var(--accent-cyan);
+  font-size: 15px;
+  font-weight: 700;
+  margin: 18px 0 8px;
+  letter-spacing: 0.2px;
+}
+
+.lesson-article p {
+  margin: 8px 0;
+  color: var(--text-secondary);
+}
+
+.lesson-article strong {
+  color: var(--text-primary);
+}
+
+.lesson-article em {
+  color: var(--accent-blue);
+  font-style: italic;
+}
+
+.lesson-article-img {
+  width: 100%;
+  border-radius: 14px;
+  margin: 14px 0;
+  object-fit: cover;
+  max-height: 200px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.lesson-article-img:active {
+  transform: scale(0.97);
+}
+
+.lesson-article ul,
+.lesson-article ol {
+  padding-left: 20px;
+  margin: 10px 0;
+  color: var(--text-secondary);
+}
+
+.lesson-article li {
+  margin: 6px 0;
+  line-height: 1.6;
+}
+
+.lesson-article li strong {
+  color: var(--text-primary);
+}
+
+.lesson-highlight-box {
+  background: rgba(0, 122, 255, 0.08);
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.lesson-highlight-box strong {
+  color: var(--accent-blue);
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* Scrollable article in modal */
+.modal-lesson-text-wrap {
+  max-height: 55vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.modal-lesson-text-wrap::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modal-lesson-text-wrap::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.modal-lesson-text-wrap::-webkit-scrollbar-track {
+  background: transparent;
 }

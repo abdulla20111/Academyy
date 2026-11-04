@@ -39,6 +39,12 @@ function showToast(message) {
   }, 2200);
 }
 
+// Apple Emoji helper — renders iPhone-style emoji via CDN
+function appleEmoji(emoji, extraClass = '') {
+  const encoded = encodeURIComponent(emoji);
+  return `<img src="https://emojicdn.elk.sh/${encoded}?style=apple" class="apple-emoji ${extraClass}" alt="${emoji}" draggable="false">`;
+}
+
 // YouTube URL parser
 function extractYouTubeId(url) {
   if (!url) return null;
@@ -48,11 +54,21 @@ function extractYouTubeId(url) {
   return match ? match[1] : null;
 }
 
+// Direct video URL detector (mp4, webm, mov, ogg)
+function isDirectVideoUrl(url) {
+  if (!url) return false;
+  url = url.trim().toLowerCase();
+  return /\.(mp4|webm|mov|ogg|m4v)(\?.*)?$/i.test(url) ||
+         url.includes('video/') ||
+         url.includes('.mp4') ||
+         url.includes('.webm');
+}
+
 // ==========================================
 // 2. DATA STORAGE (COURSES & PROGRESS)
 // ==========================================
-const COURSES_STORAGE_KEY = 'academy_courses_v3';
-const PROGRESS_STORAGE_KEY = 'academy_user_progress_v3';
+const COURSES_STORAGE_KEY = 'academy_courses_v4';
+const PROGRESS_STORAGE_KEY = 'academy_user_progress_v4';
 const ADMIN_ID = '6649277063';
 const ADMIN_SECRET_PIN = '7706'; // Brauzerdan kirganda ham qulay ochish uchun
 
@@ -76,8 +92,34 @@ const DEFAULT_COURSES = [
         title: 'Sun\'iy intellekt (AI) nima va u qanday ishlaydi?',
         duration: '12 daqiqa',
         tag: '1-dars',
-        videoUrl: 'https://www.youtube.com/watch?v=2eWuYf-aZE4',
         desc: 'Ushbu darsda Sun\'iy intellektning fundamental tushunchalari, neyrotarmoqlar modellari va ChatGPT qanday ishlashi tushuntiriladi.',
+        content: `
+          <div class="lesson-article">
+            <img src="https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80" alt="AI Brain" class="lesson-article-img">
+            <p>🤖 <strong>Sun'iy intellekt (Artificial Intelligence)</strong> — bu kompyuter tizimlarining inson kabi fikrlash, o'rganish va qaror qabul qilish qobiliyati.</p>
+            
+            <h4>📌 AI qanday ishlaydi?</h4>
+            <p>AI modellar <em>katta hajmdagi ma'lumotlar</em> (Big Data) asosida naqshlarni (patterns) o'rganadi. Masalan, ChatGPT milliardlab matn asosida o'qitilgan.</p>
+            
+            <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&q=80" alt="Neural Network" class="lesson-article-img">
+            
+            <h4>🧠 Neyrotarmoq (Neural Network)</h4>
+            <p>Inson miyasidagi neyronlar kabi, sun'iy neyrotarmoqlar axborotni qayta ishlaydi. Har bir neyron kiruvchi signalni qabul qilib, natija chiqaradi.</p>
+            
+            <div class="lesson-highlight-box">
+              <strong>💡 Eslab qoling:</strong> AI = Ma'lumot + Algoritmlar + Hisoblash quvvati
+            </div>
+            
+            <h4>📊 AI turlari:</h4>
+            <ul>
+              <li><strong>Tor AI (Narrow AI)</strong> — faqat bitta vazifani bajaradi (masalan: Siri, ChatGPT)</li>
+              <li><strong>Umumiy AI (AGI)</strong> — inson kabi fikrlaydi (hali yaratilmagan)</li>
+              <li><strong>Super AI (ASI)</strong> — insondan ustun (nazariy)</li>
+            </ul>
+            
+            <img src="https://images.unsplash.com/photo-1655720828018-edd71de48923?w=600&q=80" alt="ChatGPT" class="lesson-article-img">
+          </div>
+        `,
         quiz: {
           question: 'Sun\'iy intellekt (AI) modellarining asosiy ishlash printsipi nima?',
           options: [
@@ -94,8 +136,36 @@ const DEFAULT_COURSES = [
         title: 'ChatGPT bilan tanishuv va hisob ochish',
         duration: '15 daqiqa',
         tag: '2-dars',
-        videoUrl: 'https://www.youtube.com/watch?v=JTxsNm9IdYU',
         desc: 'OpenAI platformasida ro\'yxatdan o\'tish, interfeys bilan tanishish va birinchi samarali muloqotni boshlash.',
+        content: `
+          <div class="lesson-article">
+            <img src="https://images.unsplash.com/photo-1694891624404-75cec03c1d53?w=600&q=80" alt="ChatGPT Interface" class="lesson-article-img">
+            <p>💬 <strong>ChatGPT</strong> — OpenAI kompaniyasi yaratgan suhbat asosidagi sun'iy intellekt. U savollaringizga javob beradi, matn yozadi, kod tuzadi va boshqa ko'p ishlarni bajaradi.</p>
+            
+            <h4>📱 Ro'yxatdan o'tish bosqichlari:</h4>
+            <ol>
+              <li>🌐 <strong>chat.openai.com</strong> saytiga kiring</li>
+              <li>📧 "Sign Up" tugmasini bosing va email kiriting</li>
+              <li>🔐 Parol yarating va tasdiqlang</li>
+              <li>📞 Telefon raqamingizni kiriting (tasdiqlash uchun)</li>
+              <li>✅ Tayyor! ChatGPT bilan suhbatlashishni boshlang</li>
+            </ol>
+            
+            <img src="https://images.unsplash.com/photo-1684163761883-8a14a792ca83?w=600&q=80" alt="OpenAI Dashboard" class="lesson-article-img">
+            
+            <h4>🎯 Interfeys elementlari:</h4>
+            <ul>
+              <li><strong>Chat maydoni</strong> — savollaringizni yozing</li>
+              <li><strong>Yangi chat</strong> — yangi mavzuda suhbat boshlang</li>
+              <li><strong>Tarix</strong> — oldingi suhbatlarni ko'ring</li>
+              <li><strong>Model tanlash</strong> — GPT-4o, GPT-4 va boshqalar</li>
+            </ul>
+            
+            <div class="lesson-highlight-box">
+              <strong>🆓 Bepul versiya:</strong> GPT-4o mini — kuniga cheksiz so'rov. GPT-4o — limitli, lekin juda kuchli!
+            </div>
+          </div>
+        `,
         quiz: {
           question: 'ChatGPT-dan eng aniq va sifatli javob olish uchun nima qilish kerak?',
           options: [
@@ -112,8 +182,48 @@ const DEFAULT_COURSES = [
         title: 'Prompt Engineering asoslari: 5 ta oltin qoida',
         duration: '22 daqiqa',
         tag: '3-dars',
-        videoUrl: 'https://www.youtube.com/watch?v=jC4v5AS4RIM',
         desc: 'Kontekst, Rol berish, Cheklovlar va Aniq format ko\'rsatish bo\'yicha amaliy qo\'llanma.',
+        content: `
+          <div class="lesson-article">
+            <img src="https://images.unsplash.com/photo-1686191128892-3b37add4dce2?w=600&q=80" alt="Prompt Engineering" class="lesson-article-img">
+            <p>✍️ <strong>Prompt Engineering</strong> — bu AI modeliga eng to'g'ri va samarali buyruq tuzish san'ati. Yaxshi prompt = yaxshi natija!</p>
+            
+            <h4>🏆 5 ta oltin qoida:</h4>
+            
+            <div class="lesson-highlight-box">
+              <strong>1️⃣ Rol bering:</strong><br>
+              "Sen tajribali Python dasturchi sifatida javob ber..."
+            </div>
+            
+            <div class="lesson-highlight-box">
+              <strong>2️⃣ Kontekst yozing:</strong><br>
+              "Men 15 yoshli o'quvchiman, menga oddiy tilda tushuntir..."
+            </div>
+            
+            <div class="lesson-highlight-box">
+              <strong>3️⃣ Aniq format ko'rsating:</strong><br>
+              "Javobni 5 ta punktli ro'yxat shaklida ber..."
+            </div>
+            
+            <div class="lesson-highlight-box">
+              <strong>4️⃣ Cheklov qo'ying:</strong><br>
+              "Javob 100 so'zdan oshmasin..."
+            </div>
+            
+            <div class="lesson-highlight-box">
+              <strong>5️⃣ Misol bering:</strong><br>
+              "Mana shunga o'xshash format: [misol]..."
+            </div>
+            
+            <img src="https://images.unsplash.com/photo-1699895205579-593890266153?w=600&q=80" alt="AI Writing" class="lesson-article-img">
+            
+            <h4>❌ Yomon prompt vs ✅ Yaxshi prompt:</h4>
+            <ul>
+              <li>❌ "Dasturlash haqida yoz" → juda umumiy</li>
+              <li>✅ "Python tilida boshlang'ichlar uchun 5 ta muhim maslahat yoz, har birini misol bilan tushuntir" → aniq!</li>
+            </ul>
+          </div>
+        `,
         quiz: {
           question: 'Prompt Engineering nima?',
           options: [
@@ -390,13 +500,13 @@ function renderCourses() {
     card.innerHTML = `
       <span class="card-badge-top ${course.badgeType || 'badge-top'}">${course.badge || 'TOP'}</span>
       <div class="card-icon-banner" style="background: ${course.iconBg}">
-        ${course.icon}
+        ${appleEmoji(course.icon, 'emoji-card-icon')}
       </div>
       <h4 class="course-card-title">${course.title}</h4>
       <p class="course-card-desc">${course.desc}</p>
       <div class="course-card-footer">
-        <span class="footer-free">⚡ Bepul</span>
-        <span class="footer-lessons">📚 ${lessonsCount} dars</span>
+        <span class="footer-free">${appleEmoji('⚡')} Bepul</span>
+        <span class="footer-lessons">${appleEmoji('📚')} ${lessonsCount} dars</span>
       </div>
     `;
 
@@ -412,7 +522,7 @@ function openCourseDetail(course) {
   // Header State
   headerMainCapsule.style.display = 'none';
   headerDetailCapsule.style.display = 'flex';
-  detailCapsuleIcon.textContent = course.icon;
+  detailCapsuleIcon.innerHTML = appleEmoji(course.icon);
   detailCapsuleTitle.textContent = course.title;
 
   // Detail Info
@@ -422,7 +532,7 @@ function openCourseDetail(course) {
   const lessonsCount = course.lessons ? course.lessons.length : 0;
   detailLessonCount.textContent = `${lessonsCount} ta dars`;
   detailDuration.textContent = course.duration || '3+ soat';
-  detailRating.textContent = `${course.rating || '4.9'} ⭐`;
+  detailRating.innerHTML = `${course.rating || '4.9'} ${appleEmoji('⭐')}`;
   detailLevel.textContent = course.level || 'Boshlang\'ich';
 
   // Render Lessons
@@ -454,11 +564,11 @@ function renderLessonsList(course) {
 
     row.innerHTML = `
       <div class="lesson-play-circle" style="${isDone ? 'background: #30d158; color: #000;' : ''}">
-        ${isDone ? '✓' : '▶'}
+        ${isDone ? appleEmoji('✅', 'emoji-lesson-icon') : appleEmoji('▶️', 'emoji-lesson-icon')}
       </div>
       <div class="lesson-row-info">
         <div class="lesson-row-title">${l.title}</div>
-        <div class="lesson-row-meta">${l.tag} • ${l.duration} ${l.videoUrl ? '• 🎥 Video' : ''}</div>
+        <div class="lesson-row-meta">${l.tag} • ${l.duration} ${l.videoUrl ? '• ' + appleEmoji('🎥') + ' Video' : (l.content ? '• ' + appleEmoji('📖') + ' Matn' : '')}</div>
       </div>
       <span class="lesson-open-tag">${isDone ? 'O\'tildi' : 'Ko\'rish'}</span>
     `;
@@ -498,11 +608,20 @@ function openLessonModal(lesson, course) {
   modalLessonTag.textContent = `${course.title} • ${lesson.tag}`;
   modalLessonTitle.textContent = lesson.title;
   modalLessonDuration.textContent = `⏱️ ${lesson.duration}`;
-  modalLessonText.textContent = lesson.desc || `Ushbu "${lesson.title}" darsligi orqali yangi amaliy bilimlarni o'rganing. Barcha materiallar bepul!`;
 
-  // Video Player embed
+  // Rich content (matn + rasmlar) yoki oddiy tavsif
+  if (lesson.content) {
+    modalLessonText.innerHTML = lesson.content;
+  } else {
+    modalLessonText.textContent = lesson.desc || `Ushbu "${lesson.title}" darsligi orqali yangi amaliy bilimlarni o'rganing. Barcha materiallar bepul!`;
+  }
+
+  // Video Player embed — faqat videoUrl bo'lsa ko'rsatiladi
   const ytId = extractYouTubeId(lesson.videoUrl);
+  const isDirect = isDirectVideoUrl(lesson.videoUrl);
+
   if (ytId) {
+    videoContainer.style.display = 'block';
     videoContainer.innerHTML = `
       <iframe 
         src="https://www.youtube-nocookie.com/embed/${ytId}?rel=0&modestbranding=1&playsinline=1" 
@@ -511,7 +630,27 @@ function openLessonModal(lesson, course) {
         allowfullscreen>
       </iframe>
     `;
+  } else if (isDirect || (lesson.videoUrl && lesson.videoUrl.trim().startsWith('http'))) {
+    videoContainer.style.display = 'block';
+    const videoUrl = lesson.videoUrl.trim();
+    videoContainer.innerHTML = `
+      <video 
+        controls 
+        playsinline 
+        preload="metadata" 
+        class="direct-video-player"
+        poster=""
+      >
+        <source src="${videoUrl}" type="${videoUrl.includes('.webm') ? 'video/webm' : 'video/mp4'}">
+        Brauzeringiz videoni qo'llab-quvvatlamaydi.
+      </video>
+    `;
+  } else if (lesson.content) {
+    // Matnli dars — videoni yashirish
+    videoContainer.style.display = 'none';
+    videoContainer.innerHTML = '';
   } else {
+    videoContainer.style.display = 'block';
     videoContainer.innerHTML = `
       <div class="video-placeholder">
         <div class="video-play-icon">▶</div>
@@ -540,7 +679,9 @@ function openLessonModal(lesson, course) {
 
 function closeLessonModal() {
   haptic('light');
-  // Stop video playback by clearing innerHTML
+  // Stop video playback (both YouTube iframe and direct video)
+  const vid = videoContainer.querySelector('video');
+  if (vid) vid.pause();
   videoContainer.innerHTML = '';
   lessonModal.style.display = 'none';
 }
@@ -639,7 +780,7 @@ function handleQuizOptionClick(selectedIndex, btnElement) {
   if (isCorrect) {
     haptic('success');
     btnElement.classList.add('correct');
-    quizFeedbackIcon.textContent = '🎉';
+    quizFeedbackIcon.innerHTML = appleEmoji('🎉', 'emoji-quiz-feedback');
     quizFeedbackMsg.textContent = 'Ajoyib! To\'g\'ri javob!';
     quizFeedbackBanner.style.background = 'rgba(48, 209, 88, 0.15)';
     quizFeedbackBanner.style.color = '#30d158';
@@ -650,7 +791,7 @@ function handleQuizOptionClick(selectedIndex, btnElement) {
     if (allBtns[correctIndex]) {
       allBtns[correctIndex].classList.add('correct');
     }
-    quizFeedbackIcon.textContent = '💡';
+    quizFeedbackIcon.innerHTML = appleEmoji('💡', 'emoji-quiz-feedback');
     quizFeedbackMsg.textContent = 'Noto\'g\'ri. To\'g\'ri javob belgilandi.';
     quizFeedbackBanner.style.background = 'rgba(255, 69, 58, 0.15)';
     quizFeedbackBanner.style.color = '#ff453a';
@@ -807,7 +948,7 @@ function renderAdminLessonsList() {
     item.innerHTML = `
       <div class="admin-item-info">
         <div class="admin-item-title">${l.tag}: ${l.title}</div>
-        <div class="admin-item-meta">⏱️ ${l.duration} ${l.videoUrl ? '• 🎥 Video' : '• ⚠️ Video yo\'q'} ${l.quiz ? '• 📝 Test' : ''}</div>
+        <div class="admin-item-meta">⏱️ ${l.duration} ${l.videoUrl ? (extractYouTubeId(l.videoUrl) ? '• 🎥 YouTube' : '• 📹 Video fayl') : '• ⚠️ Video yo\'q'} ${l.quiz ? '• 📝 Test' : ''}</div>
       </div>
       <div class="admin-item-actions">
         <button type="button" class="btn-action-edit" data-id="${l.id}">✎</button>
@@ -1061,7 +1202,7 @@ function renderFavoritesList() {
   if (bookmarkedLessons.length === 0) {
     listEl.innerHTML = `
       <div style="text-align: center; padding: 40px 10px; color: #98989f;">
-        <span style="font-size: 32px; display: block; margin-bottom: 8px;">⭐</span>
+        <span style="font-size: 32px; display: block; margin-bottom: 8px;">${appleEmoji('⭐', 'emoji-fav-empty')}</span>
         Hozircha saqlangan darslar yo'q.<br>
         <small>Dars ochilganda yuqoridagi yulduzchani bosing.</small>
       </div>
@@ -1073,7 +1214,7 @@ function renderFavoritesList() {
     const row = document.createElement('div');
     row.className = 'lesson-row';
     row.innerHTML = `
-      <div class="lesson-play-circle">⭐</div>
+      <div class="lesson-play-circle">${appleEmoji('⭐', 'emoji-lesson-icon')}</div>
       <div class="lesson-row-info">
         <div class="lesson-row-title">${lesson.title}</div>
         <div class="lesson-row-meta">${course.title} • ${lesson.duration}</div>
