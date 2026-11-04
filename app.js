@@ -1037,22 +1037,51 @@ adminModalCloseBtn.addEventListener('click', () => {
 const mediaAttachmentsList = document.getElementById('mediaAttachmentsList');
 const btnAddMedia = document.getElementById('btnAddMedia');
 
+// Hidden file input for picking files from phone
+const mediaFileInput = document.createElement('input');
+mediaFileInput.type = 'file';
+mediaFileInput.accept = 'image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.zip';
+mediaFileInput.multiple = true;
+mediaFileInput.style.display = 'none';
+document.body.appendChild(mediaFileInput);
+
 function clearMediaAttachments() {
   mediaAttachmentsList.innerHTML = '';
 }
 
-function addMediaAttachmentRow(type = 'photo', url = '') {
+function getFileType(file) {
+  if (file.type.startsWith('image/')) return 'photo';
+  if (file.type.startsWith('video/')) return 'video';
+  return 'file';
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function addMediaAttachmentRow(type = 'photo', url = '', fileName = '') {
   const row = document.createElement('div');
   row.className = 'media-attach-row';
+
+  const typeIcons = { photo: '📷', video: '🎬', file: '📄' };
+  const typeNames = { photo: 'Rasm', video: 'Video', file: 'Fayl' };
+  const displayName = fileName || (url.startsWith('data:') ? 'Tanlangan fayl' : url.split('/').pop().split('?')[0] || 'Media');
+
   row.innerHTML = `
-    <select class="ios-input media-type-select">
-      <option value="photo" ${type === 'photo' ? 'selected' : ''}>📷 Rasm</option>
-      <option value="video" ${type === 'video' ? 'selected' : ''}>🎬 Video</option>
-      <option value="file" ${type === 'file' ? 'selected' : ''}>📄 Fayl</option>
-    </select>
-    <input type="text" class="ios-input media-url-input" placeholder="URL manzilini kiriting..." value="${url}">
+    <div class="media-attach-type-badge">${typeIcons[type] || '📎'} ${typeNames[type] || 'Fayl'}</div>
+    <div class="media-attach-name">${displayName}</div>
+    <input type="hidden" class="media-url-input" value="">
+    <input type="hidden" class="media-type-select" value="${type}">
     <button type="button" class="btn-remove-media">✕</button>
   `;
+
+  // Store URL in hidden input (may be very long for base64)
+  row.querySelector('.media-url-input').value = url;
 
   row.querySelector('.btn-remove-media').addEventListener('click', () => {
     haptic('light');
@@ -1069,7 +1098,7 @@ function getMediaAttachments() {
   const media = [];
   rows.forEach(row => {
     const type = row.querySelector('.media-type-select').value;
-    const url = row.querySelector('.media-url-input').value.trim();
+    const url = row.querySelector('.media-url-input').value;
     if (url) {
       media.push({ type, url });
     }
@@ -1077,8 +1106,35 @@ function getMediaAttachments() {
   return media;
 }
 
+// + tugma bosilganda telefonning fayl tanlash oynasi ochiladi
 btnAddMedia.addEventListener('click', () => {
-  addMediaAttachmentRow();
+  haptic('light');
+  mediaFileInput.click();
+});
+
+// Fayllar tanlanganda
+mediaFileInput.addEventListener('change', async () => {
+  const files = Array.from(mediaFileInput.files);
+  if (files.length === 0) return;
+
+  for (const file of files) {
+    const type = getFileType(file);
+
+    // Rasm va kichik fayllar uchun base64 (5MB gacha)
+    if (file.size <= 5 * 1024 * 1024) {
+      try {
+        const base64 = await fileToBase64(file);
+        addMediaAttachmentRow(type, base64, file.name);
+      } catch (err) {
+        showToast('Fayl o\'qishda xatolik ❌');
+      }
+    } else {
+      showToast(`${file.name} juda katta (5MB dan oshmasin) ⚠️`);
+    }
+  }
+
+  // Reset input
+  mediaFileInput.value = '';
 });
 
 // Save (Add or Edit) Lesson Submit Handler
@@ -1224,12 +1280,20 @@ function updateProfileStats() {
   if (tgUser) {
     const fullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'Foydalanuvchi';
     const firstLetter = (tgUser.first_name || 'U').charAt(0).toUpperCase();
+    const photoUrl = tgUser.photo_url;
 
     if (nameEl) nameEl.textContent = fullName;
-    if (avatarEl) avatarEl.textContent = firstLetter;
     if (pName) pName.textContent = fullName;
-    if (pAvatar) pAvatar.textContent = firstLetter;
     if (pId) pId.textContent = `Telegram ID: ${tgUser.id}`;
+
+    // Telegram profil rasmi yoki birinchi harf
+    if (photoUrl) {
+      if (avatarEl) avatarEl.innerHTML = `<img src="${photoUrl}" class="tg-avatar-img" alt="${firstLetter}">`;
+      if (pAvatar) pAvatar.innerHTML = `<img src="${photoUrl}" class="tg-avatar-img tg-avatar-large" alt="${firstLetter}">`;
+    } else {
+      if (avatarEl) avatarEl.textContent = firstLetter;
+      if (pAvatar) pAvatar.textContent = firstLetter;
+    }
 
     if (String(tgUser.id) === ADMIN_ID) {
       if (pRole) {
