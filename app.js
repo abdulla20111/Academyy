@@ -15,6 +15,56 @@ if (tg) {
   }
 }
 
+
+// ============================================================
+// IndexedDB — katta media fayllarni saqlash (50MB gacha)
+// ============================================================
+function openMediaDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('AcademyMediaDB', 1);
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore('media_files');
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveMediaBlob(blob) {
+  const id = 'media_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  const db = await openMediaDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('media_files', 'readwrite');
+    tx.objectStore('media_files').put(blob, id);
+    tx.oncomplete = () => resolve('idb://' + id);
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+async function getMediaBlob(idbUrl) {
+  const id = idbUrl.replace('idb://', '');
+  const db = await openMediaDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('media_files', 'readonly');
+    const req = tx.objectStore('media_files').get(id);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function deleteMediaBlob(idbUrl) {
+  if (!idbUrl || !idbUrl.startsWith('idb://')) return;
+  const id = idbUrl.replace('idb://', '');
+  const db = await openMediaDB();
+  return new Promise((resolve) => {
+    const tx = db.transaction('media_files', 'readwrite');
+    tx.objectStore('media_files').delete(id);
+    tx.oncomplete = resolve;
+    tx.onerror = resolve;
+  });
+}
+
+
 // Haptic feedback helper
 function haptic(type = 'light') {
   try {
@@ -1120,16 +1170,26 @@ mediaFileInput.addEventListener('change', async () => {
   for (const file of files) {
     const type = getFileType(file);
 
-    // Rasm va kichik fayllar uchun base64 (5MB gacha)
-    if (file.size <= 5 * 1024 * 1024) {
+    // 50MB gacha fayllarni qo'llab-quvvatlash (IndexedDB orqali)
+    if (file.size <= 50 * 1024 * 1024) {
       try {
-        const base64 = await fileToBase64(file);
-        addMediaAttachmentRow(type, base64, file.name);
+        if (file.size <= 2 * 1024 * 1024) {
+          // Kichik fayllar: base64 (localStorage)
+          const base64 = await fileToBase64(file);
+          addMediaAttachmentRow(type, base64, file.name);
+        } else {
+          // Katta fayllar: IndexedDB (Blob sifatida)
+          showToast(`${file.name} yuklanmoqda... ⏳`);
+          const idbUrl = await saveMediaBlob(file);
+          addMediaAttachmentRow(type, idbUrl, file.name);
+          showToast(`${file.name} saqlandi ✅`);
+        }
       } catch (err) {
-        showToast('Fayl o\'qishda xatolik ❌');
+        console.error('Media save error:', err);
+        showToast('Fayl saqlashda xatolik ❌');
       }
     } else {
-      showToast(`${file.name} juda katta (5MB dan oshmasin) ⚠️`);
+      showToast(`${file.name} juda katta (50MB dan oshmasin) ⚠️`);
     }
   }
 
